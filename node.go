@@ -34,25 +34,9 @@ func (n *node) String() string {
 	return n.text + str
 }
 
-func createNodes(parts []string, names []string, indices []int, typs []int) *node {
-	var pNode *node
-	var node *node
-	for i, part := range parts {
-		node = newNode(part)
-		node.setParam(names[i], indices[i], typs[i] == 1)
-		if pNode != nil {
-			pNode.addNode(node)
-		}
-		pNode = node
-	}
-	return node
-}
-
-func newRouteNode(path string) *node {
+func (n *node) getPathNode(path string) *node {
 	slices := splitPath(path)
-	parts, names, indices, typs := processPath(slices)
-	node := createNodes(parts, names, indices, typs)
-	return node
+	return n.addNodes(processPath(slices))
 }
 
 func newNode(text string) *node {
@@ -234,49 +218,26 @@ func (n *node) finalize() {
 	}
 }
 
-func (n *node) addNode(on *node) {
-	if n.hasWildcard {
-		panic("cannot add a node to a node that has wildcard")
-	}
-
-	found := false
-	for _, cn := range n.nodes {
-		if sameNodes(cn, on) {
-			found = true
-			recursiveCompare(cn, on)
-			break
-		}
-	}
-	if !found {
-		n.nodes = append(n.nodes, on)
-		on.parent = n
-		if on.index != -1 {
-			on.paramsCount = on.parent.paramsCount + 1
-		} else {
-			on.paramsCount = on.parent.paramsCount
-		}
-	}
-}
-
-func sameNodes(cn *node, on *node) bool {
-	return cn.text == on.text && cn.index == on.index && cn.hasWildcard == on.hasWildcard
-}
-
-func recursiveCompare(cn *node, on *node) {
-walk:
-	for _, con := range on.nodes {
-		for _, ccn := range cn.nodes {
-			if sameNodes(ccn, con) {
-				recursiveCompare(ccn, con)
-				continue walk
+func (n *node) addNodes(parts []string, names []string, indices []int, typs []int) *node {
+	var node *node
+loop:
+	for i, part := range parts {
+		for _, cn := range n.nodes {
+			if cn.same(part, indices[i], typs[i] == 1) {
+				n = cn
+				node = cn
+				continue loop
 			}
 		}
-		cn.nodes = append(cn.nodes, con)
-		con.parent = cn
-		if con.index != -1 {
-			con.paramsCount = con.parent.paramsCount + 1
-		} else {
-			con.paramsCount = con.parent.paramsCount
-		}
+		node = newNode(part)
+		node.setParam(names[i], indices[i], typs[i] == 1)
+		node.parent = n
+		n.nodes = append(n.nodes, node)
+		n = node
 	}
+	return node
+}
+
+func (n *node) same(text string, index int, hasWildcard bool) bool {
+	return n.text == text && n.index == index && n.hasWildcard == hasWildcard
 }

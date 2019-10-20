@@ -54,9 +54,3 @@ func splitPath(path string) []string {
 
 	return nSlices
 }
-
-func (r *Router) getPathNode(path string) *node {
-	node := newRouteNode(path)
-	r.node.addNode(node.getRoot())
-	return node
-}

@@ -54,35 +54,35 @@ func New() *Router {
 }
 
 func (r *Router) GET(path string, h http.Handler) {
-	r.getPathNode(path).addMethod(http.MethodGet, h)
+	r.node.getPathNode(path).addMethod(http.MethodGet, h)
 }
 
 func (r *Router) HEAD(path string, h http.Handler) {
-	r.getPathNode(path).addMethod(http.MethodHead, h)
+	r.node.getPathNode(path).addMethod(http.MethodHead, h)
 }
 
 func (r *Router) OPTIONS(path string, h http.Handler) {
-	r.getPathNode(path).addMethod(http.MethodOptions, h)
+	r.node.getPathNode(path).addMethod(http.MethodOptions, h)
 }
 
 func (r *Router) POST(path string, h http.Handler) {
-	r.getPathNode(path).addMethod(http.MethodPost, h)
+	r.node.getPathNode(path).addMethod(http.MethodPost, h)
 }
 
 func (r *Router) PUT(path string, h http.Handler) {
-	r.getPathNode(path).addMethod(http.MethodPut, h)
+	r.node.getPathNode(path).addMethod(http.MethodPut, h)
 }
 
 func (r *Router) PATCH(path string, h http.Handler) {
-	r.getPathNode(path).addMethod(http.MethodPatch, h)
+	r.node.getPathNode(path).addMethod(http.MethodPatch, h)
 }
 
 func (r *Router) DELETE(path string, h http.Handler) {
-	r.getPathNode(path).addMethod(http.MethodDelete, h)
+	r.node.getPathNode(path).addMethod(http.MethodDelete, h)
 }
 
 func (r *Router) Handle(method string, path string, h http.Handler) {
-	r.getPathNode(path).addMethod(method, h)
+	r.node.getPathNode(path).addMethod(method, h)
 }
 
 func (r *Router) Lookup(method string, path string) (h http.Handler, ps Params, found bool) {
